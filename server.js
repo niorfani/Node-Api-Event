@@ -100,3 +100,24 @@ mongoose.connect('mongodb+srv://niorfani123:123456nikos@orfanidisapi.ubajhpr.mon
 }).catch(() => {
     console.log(error)
 })
+
+//Filter Implementation
+app.get('/events/search/:name', async(req,res) =>{
+    try{
+        const {name} = req.params;
+
+        const event = await Event.find({$or:[
+        {name: {$regex: '.*' + name + '.*', $options:'i'}},
+        {description: {$regex: '.*' + name + '.*', $options:'i'}},
+        {detailedDescription: {$regex: '.*' + name + '.*', $options:'i'}},
+        {eventCategory: {$regex: '.*' + name + '.*', $options:'i'}},
+        {location: {$regex: '.*' + name + '.*', $options:'i'}},
+       {date: {$regex: '.*' + name + '.*', $options: 'i' }}  
+       
+        ]})
+
+        res.status(200).json(event)
+    }catch(error){
+        res.status(500).json({error: error.message})
+    }
+})
