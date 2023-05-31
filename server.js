@@ -121,3 +121,30 @@ app.get('/events/search/:name', async(req,res) =>{
         res.status(500).json({error: error.message})
     }
 })
+//Add Another Filter
+app.get('/events', async (req, res) => {
+    try {
+      const filters = req.query;
+      const { minPrice, maxPrice, ...otherFilters } = filters;
+  
+      const priceFilter = {};
+      //if minPrice || maxPrice is defined then check that priceFilter is gte || lte that.
+      if (minPrice !== undefined) {
+        priceFilter.$gte = Number(minPrice);
+      }
+      if (maxPrice !== undefined) {
+        priceFilter.$lte = Number(maxPrice);
+      }
+      //any other possible filter
+      const query = { ...otherFilters };
+      //apply price filter to eventPrice field of event items
+      if (Object.keys(priceFilter).length > 0) {
+        query.eventPrice = priceFilter;
+      }
+  
+      const events = await Event.find(query);
+      res.status(200).json(events);
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  });
